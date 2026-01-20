@@ -51,9 +51,12 @@ samsun_project/
 ├── docker-compose.yml         # Оркестрация: HDFS, MongoDB, ETL-приложение
 ├── Dockerfile                 # Образ Python-приложения
 ├── hadoop.env                 # Конфигурация Hadoop
-└── requirements.txt           # Зависимости (включая spaCy и ru_core_news_sm)
+└── requirements.txt           # Зависимости 
 
-#Авторы
-#Илья Кривошеев
-#Алексей Бусарев
-#Курсовой проект по дисциплине «Big Data»
+###Авторы
+
+Илья Кривошеев
+
+Алексей Бусарев
+
+Курсовой проект по дисциплине «Big Data
