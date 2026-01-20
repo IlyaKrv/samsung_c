@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    ports:
+      - "9870:9870"   # Web UI
+      - "8020:8020"   # HDFS
+    env_file: hadoop.env
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    networks:
+      - bigdata-net
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    depends_on:
+      - namenode
+    env_file: hadoop.env
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    networks:
+      - bigdata-net
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - bigdata-net
+
+  etl-app:
+    build: .
+    container_name: etl-app
+    depends_on:
+      - namenode
+      - datanode
+      - mongodb
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+    networks:
+      - bigdata-net
+    environment:
+      - HDFS_URL=http://namenode:9870
+      - MONGODB_URL=mongodb://mongodb:27017
+    command: >
+      bash -c "
+        echo '⏳ Ожидание запуска HDFS...' &&
+        sleep 60 &&
+        echo '🚀 Запуск ETL...' &&
+        python /app/src/process_podcasts.py &&
+        echo '✅ ETL завершен. Запуск Streamlit...' &&
+        streamlit run /app/src/streamlit_app.py --server.port=8501 --server.headless=true --server.address=0.0.0.0
+      "
+    ports:
+      - "8501:8501"
+
+volumes:
+  namenode_data:
+  datanode_data:
+  mongodb_data:
+
+networks:
+  bigdata-net:
+    driver: bridge

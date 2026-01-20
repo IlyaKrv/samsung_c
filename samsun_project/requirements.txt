@@ -1,0 +1,6 @@
+hdfs
+pymongo
+pandas
+streamlit
+plotly
+numpy
